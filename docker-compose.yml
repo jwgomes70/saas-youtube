@@ -1,0 +1,46 @@
+services:
+  sistema:
+    build: .
+    container_name: saas_sistema
+    ports:
+      - "8009:80"
+    volumes:
+      - ./:/var/www
+      - ./php.ini:/usr/local/etc/php/php.ini
+    environment:
+      APACHE_DOCUMENT_ROOT: /var/www/public
+      DB_HOST: db
+      DB_NAME: dbSaas
+      DB_USER: usuario
+      DB_PASS: senha
+    depends_on:
+      - db
+
+  db:
+    image: mysql:8.0
+    container_name: saas_db
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: dbSaas
+      MYSQL_USER: usuario
+      MYSQL_PASSWORD: senha
+    volumes:
+      - db_data:/var/lib/mysql
+    ports:
+      - "3310:3306"
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: saas_pma
+    depends_on:
+      - db
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      PMA_ARBITRARY: 0
+    ports:
+      - "8010:80"
+
+volumes:
+  db_data:
